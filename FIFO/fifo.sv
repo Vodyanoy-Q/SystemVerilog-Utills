@@ -19,13 +19,16 @@ module fifo #(
 
     // ==================== SIGNALS ====================
 
-    logic [PTR_WIDTH - 1:0] write_ptr; 
-    logic [PTR_WIDTH - 1:0] read_ptr;
-
-    logic write_odd;
-    logic read_odd;
-
+    logic          [PTR_WIDTH - 1:0] write_ptr; 
+    logic          [PTR_WIDTH - 1:0] read_ptr;
+    logic                            write_odd;
+    logic                            read_odd;
     logic [DEPTH - 1:0][WIDTH - 1:0] data; 
+    logic                            bypass;
+
+    // ==================== BYPASS LOGIC ====================
+
+    assign bypass = is_empty && push && pop;
 
     // ==================== WRITE LOGIC ====================
 
@@ -34,6 +37,7 @@ module fifo #(
             write_odd  <= '0;
             write_ptr  <= '0;
         end
+        else if ( bypass ) begin end
         else if ( push ) begin   
             if ( write_ptr == MAX_PTR ) begin
                 write_ptr <= '0;
@@ -51,6 +55,7 @@ module fifo #(
             read_odd  <= '0;
             read_ptr  <= '0;
         end
+        else if ( bypass ) begin end
         else if ( pop ) begin   
             if ( read_ptr == MAX_PTR ) begin
                 read_ptr <= '0;
@@ -72,11 +77,12 @@ module fifo #(
     // ==================== WRITE DATA LOGIC ====================
 
     always_ff @( posedge clk )
-        if ( push )
+        if ( bypass ) begin end
+        else if ( push )
             data [write_ptr] <= write_data;
 
     // ==================== READ DATA LOGIC ====================
 
-    assign read_data = data [read_ptr];
+    assign read_data = bypass ? write_data : data [read_ptr];
     
 endmodule       
