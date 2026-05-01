@@ -1,0 +1,1 @@
+iverilog -g2012 -o sim.out test_pipeline.sv credit_wrapper_tb.sv ../credit_wrapper.sv ../fifo.sv && vvp sim.out 

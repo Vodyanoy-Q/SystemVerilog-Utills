@@ -2,7 +2,7 @@
 module top;
     // ==================== PARAMETERS ====================
     localparam CLK_PERIOD     = 10;
-    localparam CREDIT         = 7;
+    localparam CREDIT         = 13;
     localparam UP_DATA_SIZE   = 8;
     localparam DOWN_DATA_SIZE = 16;
     localparam LATENCY        = 10;
@@ -72,22 +72,23 @@ module top;
         rst = 1;
         #(3 * CLK_PERIOD) rst = 0; 
         // ========== TEST 1 ==========
-        down_ready = 1;
+        @( posedge clk );
+        down_ready = 0;
         up_valid = 1;
         for ( int i = 1; i < CREDIT * 10; i = i + 1) begin
             if ( i == CREDIT * 2)
-                down_ready = 0;
+                down_ready <= 0;
             else if ( i == CREDIT * 3) begin
-                down_ready = 1;
-                up_valid   = 0;
+                down_ready <= 1;
+                up_valid   <= 0;
             end
             else if (i == CREDIT * 5)
-                up_valid = 1;
+                up_valid <= 1;
 
-            up_data  = i;
+            up_data  <= i;
             @( posedge clk );
         end
-        up_valid = 0;
+        up_valid <= 0;
         @( posedge clk );
         #(30 * CLK_PERIOD);
 
